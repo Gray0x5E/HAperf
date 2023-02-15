@@ -1,3 +1,24 @@
+/*
+ * main.cpp - A simple HTTP and HTTPS server implementation
+ *
+ * Copyright (C) 2023 HAperf.com
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *
+ * This file contains the main entry point for the HTTP and HTTPS server.
+ */
+
 #include <iostream>
 #include <thread>
 #include <memory>
@@ -15,7 +36,7 @@ int main()
 
 		// Start HTTPS server on port 443 in its own thread
 		std::thread https_thread([]() {
-			std::unique_ptr<HttpServer> https_server(new HttpServer("::", "443", true, "server.crt", "server.key"));
+			std::unique_ptr<HttpServer> https_server(new HttpServer("::", "443", "server.crt", "server.key"));
 			https_server->run();
 		});
 
