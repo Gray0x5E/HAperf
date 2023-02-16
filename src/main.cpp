@@ -36,7 +36,7 @@ int main()
 
 		// Start HTTPS server on port 443 in its own thread
 		std::thread https_thread([]() {
-			std::unique_ptr<HttpServer> https_server(new HttpServer("::", "443", "server.crt", "server.key"));
+			std::unique_ptr<HttpServer> https_server(new HttpServer("::", "443", "ssl/server.crt", "ssl/server.key"));
 			https_server->run();
 		});
 
