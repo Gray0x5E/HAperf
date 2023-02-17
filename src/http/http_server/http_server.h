@@ -1,5 +1,5 @@
 /*
- * HttpServer.h - A simple HTTP and HTTPS server implementation
+ * http_server.h - A simple HTTP and HTTPS server implementation
  *
  * Copyright (C) 2023 HAperf.com
  *
@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  *
- * This file contains the class definition for HttpServer.
+ * This file contains the class definition for http_server.
  */
 
 #ifndef HTTP_SERVER_H

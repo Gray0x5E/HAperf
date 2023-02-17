@@ -1,0 +1,36 @@
+# Build artifacts
+build/*
+Makefile
+Makefile.in
+
+# Object files
+*.o
+*.obj
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Visual Studio files
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.pdb
+
+# Xcode files
+*.xcodeproj/
+*.xcworkspace/
+
+# Other build system files
+CMakeCache.txt
+CMakeFiles/
+
+# Miscellaneous
+.DS_Store
+*.log
+*.swp
+
+# SSL certificate and key
+ssl/server.crt
+ssl/server.key

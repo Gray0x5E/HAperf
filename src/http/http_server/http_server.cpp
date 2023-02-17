@@ -1,5 +1,5 @@
 /*
- * HttpServer.cpp - A simple HTTP and HTTPS server implementation
+ * http_server.cpp - A simple HTTP and HTTPS server implementation
  * Copyright (C) 2023 HAperf.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -34,7 +34,7 @@
 #include <openssl/err.h>
 #include <thread>
 #include <stdexcept>
-#include "HttpServer.h"
+#include "http_server.h"
 
 /**
  * HttpServer constructor
