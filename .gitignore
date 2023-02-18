@@ -1,9 +1,9 @@
 # Build artifacts
-build/*
-Makefile
-Makefile.in
 .deps
 .dirstamp
+build/*
+!/build/configure.ac
+!/build/makefile.am
 
 # Object files
 *.o

@@ -23,146 +23,37 @@
 #include <thread>
 #include <memory>
 #include <string>
-#include <getopt.h>
+#include "cli_options.h"
 #include "http_server.h"
 
-void usage(const char* program_name)
-{
-	std::cerr << "\n"
-
-	<< "\033[1m  Usage:\033[0m\n"
-	<< "\n"
-	<< "    " << program_name << " [--help|-h]\n"
-	<< "    " << program_name << " record --cert-file=<cert_file> --cert-key=<cert_key> [--address=<address>] [--port=<port>]\n"
-	<< "    " << program_name << " replay\n"
-	<< "\n"
-
-	<< "\033[1m  Commands:\033[0m\n"
-	<< "\n"
-	<< "    record    Record data\n"
-	<< "    replay    Replay data (work in progress)\n"
-	<< "\n"
-
-	<< "\033[1m  Options:\033[0m\n"
-	<< "\n"
-	<< "    --help, -h                                 Show this help message and exit\n"
-	<< "    --cert-file=<cert_file>, -c <cert_file>    Path to certificate file (required)\n"
-	<< "    --cert-key=<cert_key>, -k <cert_key>       Path to certificate key (required)\n"
-	<< "    --address=<address>, -a <address>          IP address to record (default: ::)\n"
-	<< "    --port=<port>, -p <port>                   Port number to record (default: 80)\n"
-	<< "\n"
-
-	<< "\033[1m  Description:\033[0m\n"
-	<< "\n"
-	<< "    This program records or replays HTTP data.\n"
-	<< "\n"
-	<< "    To record data, use the \"record\" command with the required certificate file and certificate key options.\n"
-	<< "    You may also provide an optional IP address and port number to listen on.\n"
-	<< "\n"
-	<< "    To replay data (which is currently a work in progress), use the \"replay\" command.\n"
-	<< "    This command currently has no options.\n"
-	<< "\n"
-
-	<< "\033[1m  Examples:\033[0m\n"
-	<< "\n"
-	<< "    To record data on IP address \"192.168.1.2\" and port number \"8080\", with certificate file \"server.crt\" and certificate key \"server.key\":\n"
-	<< "        " << program_name << " record -c cert.pem -k key.pem -a 192.168.1.1 -p 9000\n"
-	<< "\n"
-	<< "    To record data with certificate file \"cert.pem\" and certificate key \"key.pem\", using default IP address and port number:\n"
-	<< "        " << program_name << " record -c cert.pem -k key.pem\n"
-	<< "\n"
-	<< "    To show the help message:\n"
-	<< "        " << program_name << " --help\n"
-	<< "\n";
-}
 
 int main(int argc, char* argv[])
 {
-	int opt;
-	const char* program_name = argv[0];
-
-	// Long options
-	const option long_options[] = {
-		{"help", no_argument, nullptr, 'h'},
-		{"recorder", no_argument, nullptr, 'r'},
-		{"cert-file", required_argument, nullptr, 'c'},
-		{"cert-key", required_argument, nullptr, 'k'},
-		{"address", required_argument, nullptr, 'a'},
-		{"port", required_argument, nullptr, 'p'},
-		{nullptr, 0, nullptr, 0}
-	};
-
-	bool recorder_enabled = false;
-	std::string cert_file;
-	std::string cert_key;
-	std::string address;
-	std::string port;
-	std::string directory;
-	std::string min_age;
-	std::string max_age;
-
-	while ((opt = getopt_long(argc, argv, "hc:k:a:p:d:m:M:r", long_options, nullptr)) != -1)
-	{
-		switch (opt)
-		{
-			case 'h':
-				usage(program_name);
-				exit(0);
-			case 'r':
-				recorder_enabled = true;
-				break;
-			case 'c':
-				cert_file = optarg;
-				break;
-			case 'k':
-				cert_key = optarg;
-				break;
-			case 'a':
-				address = optarg;
-				break;
-			case 'p':
-				port = optarg;
-				break;
-			case '?': {
-				std::string opt_name;
-				if (optopt)
-				{
-					opt_name = static_cast<char>(optopt);
-				}
-				else
-				{
-					opt_name = long_options[optind - 1].name;
-				}
-				break;
-			}
-			default:
-				break;
-		}
-	}
+	Options options = parse_options(argc, argv);
 
 	// Check if recorder options are valid
-	if (recorder_enabled)
+	if (options.recorder_enabled)
 	{
-		if (cert_file.empty() || cert_key.empty())
+		if (options.cert_file.empty() || options.cert_key.empty())
 		{
 			std::cerr << "Error: Certificate file and certificate key are required for recorder\n\n";
-			usage(program_name);
+			usage(argv[0]);
 			exit(1);
 		}
 	}
 
 	// If we don't have a main activity chosen, then there's not much to do
-	if (!recorder_enabled)
+	if (!options.recorder_enabled)
 	{
-		usage(program_name);
+		usage(argv[0]);
 		exit(1);
 	}
 
 	// Determine address and port to use
-	std::string address_to_use = address.empty() ? "::" : address;
-	std::string port_to_use = port.empty() ? "80" : port;
-	std::string cert_to_use = cert_file.empty() ? "ssl/server.crt" : cert_file;
-	std::string key_to_use = cert_key.empty() ? "ssl/server.key" : cert_key;
+	std::string address_to_use = options.address.empty() ? "::" : options.address;
+	std::string port_to_use = options.port.empty() ? "80" : options.port;
+	std::string cert_to_use = options.cert_file.empty() ? "ssl/server.crt" : options.cert_file;
+	std::string key_to_use = options.cert_key.empty() ? "ssl/server.key" : options.cert_key;
 
 	try
 	{
