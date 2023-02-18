@@ -1,5 +1,5 @@
 /*
- * cli_options.h - A simple HTTP and HTTPS server implementation
+ * cli_arguments.h - A simple HTTP and HTTPS server implementation
  *
  * Copyright (C) 2023 HAperf.com
  *
@@ -16,11 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  *
- * This file contains the definition of the command-line options.
+ * This file contains the definition of the command-line arguments.
  */
 
-#ifndef CLI_OPTIONS_H
-#define CLI_OPTIONS_H
+#ifndef CLI_ARGUMENTS_H
+#define CLI_ARGUMENTS_H
 
 #include <getopt.h>
 #include <string>
@@ -47,16 +47,16 @@ struct Options
 };
 
 /**
- * Parses the command-line options passed to the application
+ * Parses the command-line arguments passed to the application
  *
  * @param argc The number of command-line arguments
  * @param argv An array of pointers to the command-line arguments
  * @param[out] options The options struct to be populated
  * @param[out] commands The commands struct to be populated
  *
- * @return Options Struct containing the parsed options
+ * @return void
  */
-Options parse_options(int argc, char* argv[], Options& options, Commands& commands);
+void parse_arguments(int argc, char* argv[], Options& options, Commands& commands);
 
 /**
  * Prints a help message detailing the usage and options of the application
@@ -74,4 +74,4 @@ void print_usage(const char* program_name);
  */
 void print_version();
 
-#endif /* CLI_OPTIONS_H */
+#endif /* CLI_ARGUMENTS_H */

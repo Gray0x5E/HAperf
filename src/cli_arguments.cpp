@@ -1,5 +1,5 @@
 /*
- * cli_options.cpp - A simple HTTP and HTTPS server implementation
+ * cli_arguments.cpp - A simple HTTP and HTTPS server implementation
  *
  * Copyright (C) 2023 HAperf.com
  *
@@ -16,28 +16,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  *
- * This file implements the command-line options parsing logic.
+ * This file implements the command-line argument parsing logic.
  */
 
 #include <iostream>
-#include "cli_options.h"
+#include "cli_arguments.h"
 #include "app_constants.h"
 
 /**
- * Parses the command-line options passed to the application
+ * Parses the command-line arguments passed to the application
  *
  * @param argc The number of command-line arguments
  * @param argv An array of pointers to the command-line arguments
  * @param[out] options The options struct to be populated
  * @param[out] commands The commands struct to be populated
  *
- * @return options Struct containing the parsed options
+ * @return void
  */
-Options parse_options(int argc, char* argv[], Options& options, Commands& commands)
+void parse_arguments(int argc, char* argv[], Options& options, Commands& commands)
 {
-	int opt;
-	Options opts;
-
 	// Long options
 	const option long_options[] = {
 		{"help", no_argument, nullptr, 'h'},
@@ -50,6 +47,7 @@ Options parse_options(int argc, char* argv[], Options& options, Commands& comman
 		{nullptr, 0, nullptr, 0}
 	};
 
+	int opt;
 	while ((opt = getopt_long(argc, argv, "hVvc:k:a:p:", long_options, nullptr)) != -1)
 	{
 		switch (opt)
@@ -61,19 +59,19 @@ Options parse_options(int argc, char* argv[], Options& options, Commands& comman
 				print_version();
 				exit(0);
 			case 'v':
-				opts.verbose = true;
+				options.verbose = true;
 				break;
 			case 'c':
-				opts.cert_file = optarg;
+				options.cert_file = optarg;
 				break;
 			case 'k':
-				opts.cert_key = optarg;
+				options.cert_key = optarg;
 				break;
 			case 'a':
-				opts.address = optarg;
+				options.address = optarg;
 				break;
 			case 'p':
-				opts.port = optarg;
+				options.port = optarg;
 				break;
 			default:
 				break;
@@ -93,8 +91,6 @@ Options parse_options(int argc, char* argv[], Options& options, Commands& comman
 			commands.replay = true;
 		}
 	}
-
-	return opts;
 }
 
 /**

@@ -9,7 +9,7 @@ AM_CPPFLAGS = \
 
 haperf_SOURCES = \
   $(top_srcdir)/../src/main.cpp \
-  $(top_srcdir)/../src/cli_options.cpp \
+  $(top_srcdir)/../src/cli_arguments.cpp \
   $(top_srcdir)/../src/http/http_server/http_server.cpp
 
 haperf_CXXFLAGS = \

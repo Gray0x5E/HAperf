@@ -23,14 +23,14 @@
 #include <thread>
 #include <memory>
 #include <string>
-#include "cli_options.h"
+#include "cli_arguments.h"
 #include "http_server.h"
 
 int main(int argc, char* argv[])
 {
 	Options opts;
 	Commands cmds;
-	parse_options(argc, argv, opts, cmds);
+	parse_arguments(argc, argv, opts, cmds);
 
 	// Check if record options are valid
 	if (cmds.record)
