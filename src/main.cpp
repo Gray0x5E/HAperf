@@ -26,34 +26,36 @@
 #include "cli_options.h"
 #include "http_server.h"
 
-
 int main(int argc, char* argv[])
 {
-	Options options = parse_options(argc, argv);
+	Options opts;
+	Commands cmds;
+	parse_options(argc, argv, opts, cmds);
 
-	// Check if recorder options are valid
-	if (options.recorder_enabled)
+	// Check if record options are valid
+	if (cmds.record)
 	{
-		if (options.cert_file.empty() || options.cert_key.empty())
+		if (opts.cert_file.empty() || opts.cert_key.empty())
 		{
 			std::cerr << "Error: Certificate file and certificate key are required for recorder\n\n";
-			usage(argv[0]);
+			print_usage(argv[0]);
 			exit(1);
 		}
 	}
 
 	// If we don't have a main activity chosen, then there's not much to do
-	if (!options.recorder_enabled)
+	// This check if just until we support other commands
+	if (!cmds.record)
 	{
-		usage(argv[0]);
+		print_usage(argv[0]);
 		exit(1);
 	}
 
 	// Determine address and port to use
-	std::string address_to_use = options.address.empty() ? "::" : options.address;
-	std::string port_to_use = options.port.empty() ? "80" : options.port;
-	std::string cert_to_use = options.cert_file.empty() ? "ssl/server.crt" : options.cert_file;
-	std::string key_to_use = options.cert_key.empty() ? "ssl/server.key" : options.cert_key;
+	std::string address_to_use = opts.address.empty() ? "::" : opts.address;
+	std::string port_to_use = opts.port.empty() ? "80" : opts.port;
+	std::string cert_to_use = opts.cert_file.empty() ? "ssl/server.crt" : opts.cert_file;
+	std::string key_to_use = opts.cert_key.empty() ? "ssl/server.key" : opts.cert_key;
 
 	try
 	{

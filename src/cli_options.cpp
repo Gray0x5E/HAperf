@@ -19,26 +19,30 @@
  * This file implements the command-line options parsing logic.
  */
 
-#include "cli_options.h"
 #include <iostream>
+#include "cli_options.h"
+#include "app_constants.h"
 
 /**
  * Parses the command-line options passed to the application
  *
  * @param argc The number of command-line arguments
  * @param argv An array of pointers to the command-line arguments
+ * @param[out] options The options struct to be populated
+ * @param[out] commands The commands struct to be populated
  *
- * @return Options Struct containing the parsed options
+ * @return options Struct containing the parsed options
  */
-Options parse_options(int argc, char* argv[])
+Options parse_options(int argc, char* argv[], Options& options, Commands& commands)
 {
 	int opt;
-	Options options;
+	Options opts;
 
 	// Long options
 	const option long_options[] = {
 		{"help", no_argument, nullptr, 'h'},
-		{"recorder", no_argument, nullptr, 'r'},
+		{"version", no_argument, nullptr, 'V'},
+		{"verbose", no_argument, nullptr, 'v'},
 		{"cert-file", required_argument, nullptr, 'c'},
 		{"cert-key", required_argument, nullptr, 'k'},
 		{"address", required_argument, nullptr, 'a'},
@@ -46,93 +50,121 @@ Options parse_options(int argc, char* argv[])
 		{nullptr, 0, nullptr, 0}
 	};
 
-	while ((opt = getopt_long(argc, argv, "hc:k:a:p:d:m:M:r", long_options, nullptr)) != -1)
+	while ((opt = getopt_long(argc, argv, "hVvc:k:a:p:", long_options, nullptr)) != -1)
 	{
 		switch (opt)
 		{
 			case 'h':
-				options.help_enabled = true;
-				break;
-			case 'r':
-				options.recorder_enabled = true;
+				print_usage(argv[0]);
+				exit(0);
+			case 'V':
+				print_version();
+				exit(0);
+			case 'v':
+				opts.verbose = true;
 				break;
 			case 'c':
-				options.cert_file = optarg;
+				opts.cert_file = optarg;
 				break;
 			case 'k':
-				options.cert_key = optarg;
+				opts.cert_key = optarg;
 				break;
 			case 'a':
-				options.address = optarg;
+				opts.address = optarg;
 				break;
 			case 'p':
-				options.port = optarg;
-				break;
-			case '?':
-				usage(argv[0]);
-				exit(1);
+				opts.port = optarg;
 				break;
 			default:
 				break;
 		}
 	}
 
-	return options;
+	// Parse commands
+	if (optind < argc)
+	{
+		std::string command = argv[optind];
+		if (command == "record")
+		{
+			commands.record = true;
+		}
+		else if (command == "replay")
+		{
+			commands.replay = true;
+		}
+	}
+
+	return opts;
 }
 
 /**
  * Prints a help message detailing the usage and options of the application
  *
- * @param program_name The name of the program (typically argv[0])
+ * @param const char* program_name The name of the program (typically argv[0])
  *
  * return void
  */
-void usage(const char* program_name)
+void print_usage(const char* program_name)
 {
-	std::cerr << "\n"
+	std::cerr
 
-	<< "\033[1m  Usage:\033[0m\n"
+	<< "\033[1mDescription:\033[0m\n"
 	<< "\n"
-	<< "    " << program_name << " [--help|-h]\n"
-	<< "    " << program_name << " record --cert-file=<cert_file> --cert-key=<cert_key> [--address=<address>] [--port=<port>]\n"
-	<< "    " << program_name << " replay\n"
+	<< "  This program records or replays HTTP data.\n"
 	<< "\n"
-
-	<< "\033[1m  Commands:\033[0m\n"
+	<< "  To record data, use the \"record\" command with the required certificate file and certificate key options.\n"
+	<< "  You may also provide an optional IP address and port number to listen on.\n"
 	<< "\n"
-	<< "    record    Record data\n"
-	<< "    replay    Replay data (work in progress)\n"
+	<< "  To replay data (which is currently a work in progress), use the \"replay\" command.\n"
+	<< "  This command currently has no options.\n"
 	<< "\n"
 
-	<< "\033[1m  Options:\033[0m\n"
+	<< "\033[1mUsage:\033[0m\n"
 	<< "\n"
-	<< "    --help, -h                                 Show this help message and exit\n"
-	<< "    --cert-file=<cert_file>, -c <cert_file>    Path to certificate file (required)\n"
-	<< "    --cert-key=<cert_key>, -k <cert_key>       Path to certificate key (required)\n"
-	<< "    --address=<address>, -a <address>          IP address to record (default: ::)\n"
-	<< "    --port=<port>, -p <port>                   Port number to record (default: 80)\n"
+	<< "  " << program_name << " [--help] [--version]\n"
+	<< "  " << program_name << " record --cert-file=<cert_file> --cert-key=<cert_key> [--address=<address>] [--port=<port>] [--verbose]\n"
+	<< "  " << program_name << " replay\n"
 	<< "\n"
 
-	<< "\033[1m  Description:\033[0m\n"
+	<< "\033[1mCommands:\033[0m\n"
 	<< "\n"
-	<< "    This program records or replays HTTP data.\n"
-	<< "\n"
-	<< "    To record data, use the \"record\" command with the required certificate file and certificate key options.\n"
-	<< "    You may also provide an optional IP address and port number to listen on.\n"
-	<< "\n"
-	<< "    To replay data (which is currently a work in progress), use the \"replay\" command.\n"
-	<< "    This command currently has no options.\n"
+	<< "  record    Record data\n"
+	<< "  replay    Replay data (work in progress)\n"
 	<< "\n"
 
-	<< "\033[1m  Examples:\033[0m\n"
+	<< "\033[1mOptions:\033[0m\n"
 	<< "\n"
-	<< "    To record data on IP address \"192.168.1.2\" and port number \"8080\", with certificate file \"server.crt\" and certificate key \"server.key\":\n"
-	<< "        " << program_name << " record -c cert.pem -k key.pem -a 192.168.1.1 -p 9000\n"
+	<< "  --help, -h                                 Show this help message and exit\n"
+	<< "  --version, -V                              Information about this software version\n"
+	<< "  --verbose, -v                              Show more info (for supported commands)\n"
+	<< "  --cert-file=<cert_file>, -c <cert_file>    Path to certificate file (required)\n"
+	<< "  --cert-key=<cert_key>, -k <cert_key>       Path to certificate key (required)\n"
+	<< "  --address=<address>, -a <address>          IP address to record (default: ::)\n"
+	<< "  --port=<port>, -p <port>                   Port number to record (default: 80)\n"
 	<< "\n"
-	<< "    To record data with certificate file \"cert.pem\" and certificate key \"key.pem\", using default IP address and port number:\n"
-	<< "        " << program_name << " record -c cert.pem -k key.pem\n"
+
+	<< "\033[1mExamples:\033[0m\n"
 	<< "\n"
-	<< "    To show the help message:\n"
-	<< "        " << program_name << " --help\n"
+	<< "  Show this help message:\n"
+	<< "      " << program_name << " --help\n"
+	<< "\n"
+	<< "  Show information about this build of the application:\n"
+	<< "      " << program_name << " --help\n"
+	<< "\n"
+	<< "  To record data on IP address \"192.168.1.2\" and port number \"8080\", with certificate file \"server.crt\" and certificate key \"server.key\":\n"
+	<< "      " << program_name << " record -c server.crt -k server.key -a 192.168.1.2 -p 8080\n"
+	<< "\n"
+	<< "  To record data with certificate file \"server.crt\" and certificate key \"server.key\", using default IP address and port number:\n"
+	<< "      " << program_name << " record -c server.crt -k server.key\n"
+
+	<< "\n";
+}
+
+void print_version()
+{
+	std::cerr
+	<< APP_NAME << " version " << VERSION
+	<< " (built on " __DATE__ "). "
+	<< "Copyright " << YEAR << " " << COPYRIGHT << "."
 	<< "\n";
 }

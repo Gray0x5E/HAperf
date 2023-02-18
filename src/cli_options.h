@@ -25,6 +25,13 @@
 #include <getopt.h>
 #include <string>
 
+
+struct Commands
+{
+	bool record = false;
+	bool replay = false;
+};
+
 /**
  * @struct Options
  *
@@ -32,8 +39,7 @@
  */
 struct Options
 {
-	bool help_enabled = false;
-	bool recorder_enabled = false;
+	bool verbose = false;
 	std::string cert_file;
 	std::string cert_key;
 	std::string address;
@@ -45,18 +51,27 @@ struct Options
  *
  * @param argc The number of command-line arguments
  * @param argv An array of pointers to the command-line arguments
+ * @param[out] options The options struct to be populated
+ * @param[out] commands The commands struct to be populated
  *
  * @return Options Struct containing the parsed options
  */
-Options parse_options(int argc, char* argv[]);
+Options parse_options(int argc, char* argv[], Options& options, Commands& commands);
 
 /**
  * Prints a help message detailing the usage and options of the application
  *
- * @param program_name The name of the program (typically argv[0])
+ * @param const char* program_name The name of the program (typically argv[0])
  *
  * return void
  */
-void usage(const char* program_name);
+void print_usage(const char* program_name);
+
+/**
+ * Prints some information about the current version of this software
+ *
+ * return void
+ */
+void print_version();
 
 #endif /* CLI_OPTIONS_H */
