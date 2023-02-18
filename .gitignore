@@ -2,6 +2,8 @@
 build/*
 Makefile
 Makefile.in
+.deps
+.dirstamp
 
 # Object files
 *.o
@@ -25,6 +27,8 @@ Makefile.in
 # Other build system files
 CMakeCache.txt
 CMakeFiles/
+.deps
+.dirstamp
 
 # Miscellaneous
 .metadata_never_index

@@ -26,18 +26,54 @@
 #include <getopt.h>
 #include "http_server.h"
 
+void usage(const char* program_name)
+{
+	std::cerr << "\n"
 
-void usage(const char* program_name) {
-	std::cerr << "Usage: " << program_name << " [options]...\n"
-		<< "\n"
-		<< "Options:\n"
-		<< "  -h, --help                   Show this help text\n"
-		<< "  -r, --recorder               Enable recording\n"
-		<< "  -c, --cert-file=<file-path>  Path to certificate file (required for --recorder)\n"
-		<< "  -k, --cert-key=<file-path>   Path to certificate key file (required for --recorder)\n"
-		<< "  -a, --address=<ip-address>   Address to listen on (required for --recorder)\n"
-		<< "  -p, --port=<port-number>     Port to listen on (required for --recorder)\n"
-		<< "\n";
+	<< "\033[1m  Usage:\033[0m\n"
+	<< "\n"
+	<< "    " << program_name << " [--help|-h]\n"
+	<< "    " << program_name << " record --cert-file=<cert_file> --cert-key=<cert_key> [--address=<address>] [--port=<port>]\n"
+	<< "    " << program_name << " replay\n"
+	<< "\n"
+
+	<< "\033[1m  Commands:\033[0m\n"
+	<< "\n"
+	<< "    record    Record data\n"
+	<< "    replay    Replay data (work in progress)\n"
+	<< "\n"
+
+	<< "\033[1m  Options:\033[0m\n"
+	<< "\n"
+	<< "    --help, -h                                 Show this help message and exit\n"
+	<< "    --cert-file=<cert_file>, -c <cert_file>    Path to certificate file (required)\n"
+	<< "    --cert-key=<cert_key>, -k <cert_key>       Path to certificate key (required)\n"
+	<< "    --address=<address>, -a <address>          IP address to record (default: ::)\n"
+	<< "    --port=<port>, -p <port>                   Port number to record (default: 80)\n"
+	<< "\n"
+
+	<< "\033[1m  Description:\033[0m\n"
+	<< "\n"
+	<< "    This program records or replays HTTP data.\n"
+	<< "\n"
+	<< "    To record data, use the \"record\" command with the required certificate file and certificate key options.\n"
+	<< "    You may also provide an optional IP address and port number to listen on.\n"
+	<< "\n"
+	<< "    To replay data (which is currently a work in progress), use the \"replay\" command.\n"
+	<< "    This command currently has no options.\n"
+	<< "\n"
+
+	<< "\033[1m  Examples:\033[0m\n"
+	<< "\n"
+	<< "    To record data on IP address \"192.168.1.2\" and port number \"8080\", with certificate file \"server.crt\" and certificate key \"server.key\":\n"
+	<< "        " << program_name << " record -c cert.pem -k key.pem -a 192.168.1.1 -p 9000\n"
+	<< "\n"
+	<< "    To record data with certificate file \"cert.pem\" and certificate key \"key.pem\", using default IP address and port number:\n"
+	<< "        " << program_name << " record -c cert.pem -k key.pem\n"
+	<< "\n"
+	<< "    To show the help message:\n"
+	<< "        " << program_name << " --help\n"
+	<< "\n";
 }
 
 int main(int argc, char* argv[])
