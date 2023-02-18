@@ -21,7 +21,7 @@
 
 #include <iostream>
 #include "cli_arguments.h"
-#include "app_constants.h"
+#include "constants.h"
 
 /**
  * Parses the command-line arguments passed to the application

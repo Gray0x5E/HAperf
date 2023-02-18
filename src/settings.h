@@ -1,5 +1,5 @@
 /*
- * app_constants.cpp - A simple HTTP and HTTPS server implementation
+ * settings.h - A simple HTTP and HTTPS server implementation
  *
  * Copyright (C) 2023 HAperf.com
  *
@@ -16,15 +16,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  *
- * Defines constant values used throughout the HAperf application.
+ * Contains settings for the HAperf application.
  */
 
-#ifndef APP_CONSTANTS_H
-#define APP_CONSTANTS_H
+#ifndef SETTINGS_H
+#define SETTINGS_H
 
-#define APP_NAME "HAperf"
-#define VERSION "0.1.0-alpha"
-#define YEAR "2023"
-#define COPYRIGHT "GPLv3"
+/**
+ * @var bool Whether verbose mode is enabled or not
+ */
+extern bool verbose;
 
-#endif /* APP_CONSTANTS_H */
+#endif /* SETTINGS_H */

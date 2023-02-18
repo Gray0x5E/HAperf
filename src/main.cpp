@@ -23,22 +23,41 @@
 #include <thread>
 #include <memory>
 #include <string>
+#include "settings.h"
 #include "cli_arguments.h"
 #include "http_server.h"
 
+/**
+ * @var bool verbose Whether verbose mode is enabled or not. Defaults to false.
+ */
+bool verbose = false;
+
+/**
+ * The main function of the HAperf command-line application
+ *
+ * @param argc The number of command-line arguments
+ * @param argv An array of pointers to the command-line arguments
+ *
+ * @return int Status code indicating the result of the operation
+ */
 int main(int argc, char* argv[])
 {
 	Options opts;
 	Commands cmds;
 	parse_arguments(argc, argv, opts, cmds);
 
+	// Set verbose mode
+	if (opts.verbose)
+	{
+		verbose = true;
+	}
+
 	// Check if record options are valid
 	if (cmds.record)
 	{
 		if (opts.cert_file.empty() || opts.cert_key.empty())
 		{
-			std::cerr << "Error: Certificate file and certificate key are required for recorder\n\n";
-			print_usage(argv[0]);
+			std::cerr << "\033[1mError:\033[0m Certificate file and key are required to run this command.\n\n";
 			exit(1);
 		}
 	}
