@@ -19,8 +19,8 @@
  * This file declares various functions used within the HAperf application.
  */
 
-#ifndef CONSTANTS_H
-#define CONSTANTS_H
+#ifndef FUNCTIONS_H
+#define FUNCTIONS_H
 
 /**
  * Outputs a verbose message to the console, including a timestamp
@@ -32,4 +32,4 @@
  */
 void debug(const char* message, ...);
 
-#endif /* CONSTANTS_H */
+#endif /* FUNCTIONS_H */

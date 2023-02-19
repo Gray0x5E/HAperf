@@ -44,6 +44,11 @@
  */
 void debug(const char* message, ...)
 {
+	if (!verbose)
+	{
+		return;
+	}
+
     time_t now = std::time(nullptr);
     char timestamp[20];
     std::strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
