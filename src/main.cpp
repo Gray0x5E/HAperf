@@ -26,7 +26,7 @@
 #include "settings.h"
 #include "functions.h"
 #include "cli_arguments.h"
-#include "http_server.h"
+#include "server.h"
 
 /**
  * @var bool verbose Whether verbose mode is enabled or not. Defaults to false.
@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
 	// This check if just until we support other commands
 	if (!cmds.record)
 	{
-		print_usage(argv[0]);
+		std::cout << "Invalid request. For information on usage: " << argv[0] << " --help" << std::endl;
 		exit(1);
 	}
 
@@ -82,14 +82,14 @@ int main(int argc, char* argv[])
 		// Start HTTP server on the determined address and port in its own thread
 		debug("Starting HTTP server on port %s", port_to_use.c_str());
 		std::thread http_thread([=](){
-			std::unique_ptr<HttpServer> http_server(new HttpServer(address_to_use.c_str(), port_to_use.c_str()));
+			std::unique_ptr<HTTP::Server> http_server(new HTTP::Server(address_to_use.c_str(), port_to_use.c_str()));
 			http_server->run();
 		});
 
 		// Start HTTPS server on port 443 in its own thread
 		debug("Starting HTTPS server on port %s", port_to_use.c_str());
 		std::thread https_thread([=]() {
-			std::unique_ptr<HttpServer> https_server(new HttpServer(address_to_use.c_str(), "443", cert_to_use.c_str(), key_to_use.c_str()));
+			std::unique_ptr<HTTP::Server> https_server(new HTTP::Server(address_to_use.c_str(), "443", cert_to_use.c_str(), key_to_use.c_str()));
 			https_server->run();
 		});
 
