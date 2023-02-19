@@ -24,6 +24,7 @@
 #include <memory>
 #include <string>
 #include "settings.h"
+#include "functions.h"
 #include "cli_arguments.h"
 #include "http_server.h"
 
