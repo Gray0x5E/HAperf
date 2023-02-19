@@ -23,6 +23,7 @@
 #include <iomanip>
 #include <ctime>
 #include <cstdarg>
+#include "settings.h"
 #include "functions.h"
 
 /**
