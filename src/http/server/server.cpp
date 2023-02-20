@@ -1,5 +1,6 @@
 /*
  * server.cpp - A simple HTTP and HTTPS server implementation
+ *
  * Copyright (C) 2023 HAperf.com
  *
  * This program is free software: you can redistribute it and/or modify
@@ -30,8 +31,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <string.h>
-#include <openssl/ssl.h>
-#include <openssl/err.h>
 #include <thread>
 #include <stdexcept>
 #include "settings.h"
@@ -47,70 +46,28 @@ namespace HTTP
 	/**
 	 * Server constructor
 	 *
-	 * Initializes an Server instance with the specified address, port, certificate file, and key file.
-	 * If a certificate and key file are specified, SSL is enabled and an SSL context is created.
+	 * Initialises an Server instance with the specified address and port
 	 *
 	 * @param const char* address The IP address to listen on
 	 * @param const char* port The port number to listen on
-	 * @param const std::string& cert_file The path to the certificate file, if SSL is enabled
-	 * @param const std::string& key_file The path to the private key file, if SSL is enabled
 	 *
 	 * @return void
 	 */
-	Server::Server(const char* address, const char* port, const std::string& cert_file, const std::string& key_file)
+	Server::Server(const char* address, const char* port)
 		: address_(address),
 		  port_(port),
 		  use_ipv6_(false),
-		  cert_file_(cert_file),
-		  key_file_(key_file),
-		  use_ssl_(!cert_file.empty() && !key_file.empty()),
-		  server_fd_(-1),
-		  ctx_(nullptr)
+		  server_fd_(-1)
 	{
-		// Initialize SSL library and create SSL context if SSL is enabled
-		if (use_ssl_)
-		{
-			SSL_library_init();
-			OpenSSL_add_all_algorithms();
-			SSL_load_error_strings();
-
-			// Create SSL context
-			ctx_ = SSL_CTX_new(TLS_server_method());
-
-			// Load server certificate
-			if (SSL_CTX_use_certificate_file(ctx_, cert_file_.c_str(), SSL_FILETYPE_PEM) <= 0)
-			{
-				throw std::runtime_error("Failed to load server certificate");
-			}
-
-			// Load private key
-			if (SSL_CTX_use_PrivateKey_file(ctx_, key_file_.c_str(), SSL_FILETYPE_PEM) <= 0)
-			{
-				throw std::runtime_error("Failed to load server private key");
-			}
-
-			// Check the private key
-			if (!SSL_CTX_check_private_key(ctx_))
-			{
-				throw std::runtime_error("Server private key does not match the certificate public key");
-			}
-		}
 	}
 
 	/**
 	 * Server destructor
 	 *
-	 * Cleans up the SSL library if SSL is enabled
-	 *
 	 * @return void
 	 */
 	Server::~Server()
 	{
-		// Clean up SSL library if SSL is enabled
-		if (use_ssl_)
-		{
-			EVP_cleanup();
-		}
 	}
 
 	/**
@@ -122,8 +79,8 @@ namespace HTTP
 	 */
 	void Server::run()
 	{
-		// Use getaddrinfo to get address information for the specified address and port.
-		// The resulting address information is used to create and bind the server socket.
+		// Use getaddrinfo to get address information for the specified address and port
+		// The resulting address information is used to create and bind the server socket
 		struct addrinfo hints, *res;
 		memset(&hints, 0, sizeof(hints));
 		hints.ai_family = AF_UNSPEC;
@@ -165,32 +122,10 @@ namespace HTTP
 				continue;
 			}
 
-			if (use_ssl_)
-			{
-				SSL* ssl = SSL_new(ctx_);
-				SSL_set_fd(ssl, client_fd);
-
-				if (SSL_accept(ssl) <= 0)
-				{
-					SSL_free(ssl);
-					close(client_fd);
-					continue;
-				}
-
-				// Spawn a new thread to handle the SSL connection
-				std::thread([this, ssl]() {
-					handle_request_ssl(ssl);
-					SSL_shutdown(ssl);
-					SSL_free(ssl);
-				}).detach();
-			}
-			else
-			{
-				// Spawn a new thread to handle the unencrypted connection
-				std::thread([this, client_fd]() {
-					handle_request(client_fd);
-				}).detach();
-			}
+			// Spawn a new thread to handle the unencrypted connection
+			std::thread([this, client_fd]() {
+				handle_request(client_fd);
+			}).detach();
 		}
 	}
 
@@ -242,46 +177,8 @@ namespace HTTP
 		close(client_fd);
 	}
 
-
 	/**
-	 * Handles an incoming SSL request on the specified SSL socket
-	 *
-	 * @param SSL* ssl The SSL socket representing the encrypted client connection
-	 *
-	 * @return void
-	 */
-	void Server::handle_request_ssl(SSL* ssl)
-	{
-		char buffer[1024] = {0};
-		int valread = SSL_read(ssl, buffer, 1024);
-
-		if (valread <= 0)
-		{
-			return;
-		}
-
-		// Get the current time
-		std::string current_time = get_formatted_time();
-
-		std::string response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n";
-		response += current_time + " - received:\n\n";
-		response += buffer;
-
-		// Send response to client
-		int bytes_written = SSL_write(ssl, response.c_str(), response.size());
-
-		if (bytes_written <= 0)
-		{
-			// Handle error
-			std::cerr << "Failed to send response to client" << std::endl;
-		}
-
-		SSL_shutdown(ssl);
-		close(SSL_get_fd(ssl));
-	}
-
-	/**
-	 * Create a new socket for the Server to listen on
+	 * Create a new socket for the server to listen on
 	 *
 	 * @param const char* address The IP address to bind to
 	 * @param const char* port The port number to bind to

@@ -22,9 +22,21 @@
 #ifndef HTTP_SERVER_H
 #define HTTP_SERVER_H
 
-#include <string>
-#include <openssl/ssl.h>
+#include <iostream>
+#include <chrono>
+#include <ctime>
+#include <sstream>
+#include <iomanip>
+#include <unistd.h>
+#include <netdb.h>
+#include <sys/types.h>
 #include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <string.h>
+#include <thread>
+#include <stdexcept>
+#include "settings.h"
 
 /**
  * @namespace HTTP
@@ -34,25 +46,23 @@ namespace HTTP
 {
 
 	/**
-	 * @brief A simple HTTP and HTTPS server implementation.
+	 * @brief A simple HTTP server implementation
 	 *
-	 * This class provides a way to create and run an HTTP or HTTPS server, serving
-	 * web pages and resources to clients that connect to it over the network.
+	 * This class provides a way to create and run an HTTP server, serving
+	 * web pages and resources to clients that connect to it over the network
 	 */
 	class Server
 	{
 		public:
 			/**
-			 * Construct an Server that listens on the specified address and port with SSL/TLS encryption.
+			 * Construct an Server that listens on the specified address and port
 			 *
 			 * @param const char* address The IP address to listen on, or nullptr to listen on all available addresses
 			 * @param const char* port The port to listen on
-			 * @param const std::string&cert_file The path to the SSL/TLS certificate file
-			 * @param const std::string&key_file The path to the SSL/TLS private key file
 			 *
 			 * return void
 			 */
-			Server(const char* address, const char* port, const std::string& cert_file = "", const std::string& key_file = "");
+			Server(const char* address, const char* port);
 
 			/**
 			 * Destruct the Server and release any resources
@@ -63,11 +73,13 @@ namespace HTTP
 			 * Run the Server and start listening for incoming connections.
 			 * This method blocks and does not return until the server is stopped.
 			 *
+			 * @note This method can be overridden by child classes.
+			 *
 			 * return void
 			 */
-			void run();
+			virtual void run();
 
-		private:
+		protected:
 
 			/**
 			 * Returns a formatted string representing the current time
@@ -84,15 +96,6 @@ namespace HTTP
 			 * @return void
 			 */
 			void handle_request(int client_fd);
-
-			/**
-			 * Handle an incoming encrypted HTTPS request
-			 *
-			 * @param SSL* ssl The SSL object representing the encrypted client connection
-			 *
-			 * @return bool
-			 */
-			void handle_request_ssl(SSL* ssl);
 
 			/**
 			 * Create a new socket for the Server to listen on
@@ -148,26 +151,6 @@ namespace HTTP
 			 * @var bool Whether to use IPv6 or IPv4
 			 */
 			bool use_ipv6_;
-
-			/**
-			 * @var bool Whether to use SSL/TLS encryption
-			 */
-			bool use_ssl_;
-
-			/**
-			 * @var std::string The path to the SSL/TLS certificate file
-			 */
-			std::string cert_file_;
-
-			/**
-			 * @var std::string The path to the SSL/TLS private key file
-			 */
-			std::string key_file_;
-
-			/**
-			 * @var SSL_CTX* The SSL/TLS context for the server
-			 */
-			SSL_CTX* ctx_;
 
 			/**
 			 * @var int The file descriptor for the server socket

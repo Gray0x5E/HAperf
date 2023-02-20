@@ -11,6 +11,7 @@ AC_ARG_WITH([openssl],
 		with_openssl="$withval"
 		OPENSSL_CFLAGS="-I$with_openssl/include"
 		OPENSSL_LIBS="-L$with_openssl/lib -lssl -lcrypto"
+		USE_SSL="yes"
 	],
 	[
 		AC_MSG_NOTICE([Searching for OpenSSL in standard locations])
@@ -21,9 +22,11 @@ AC_ARG_WITH([openssl],
 				OPENSSL_CFLAGS="-I$with_openssl/include"
 				OPENSSL_LIBS="-L$with_openssl/lib -lssl -lcrypto"
 				AC_MSG_NOTICE([OpenSSL found in standard location])
+				USE_SSL="yes"
 			],
 			[
-				AC_MSG_ERROR([OpenSSL not found in standard locations, please use --with-openssl=DIR to specify location])
+				AC_MSG_NOTICE([OpenSSL not found in standard locations. For HTTPS support configure using --with-openssl=DIR])
+				USE_SSL="no"
 			]
 		)
 	]
@@ -34,6 +37,15 @@ AC_SUBST([OPENSSL_LIBS])
 
 # Check for C++
 AC_PROG_CXX
+
+# Set environment variable if SSL support was not found
+if test "x$USE_SSL" = "xyes"; then
+    AC_DEFINE([SSL_SUPPORT], [1], [OpenSSL found; SSL support is available])
+    AC_MSG_NOTICE([SSL_SUPPORT=1])
+elif test "x$USE_SSL" = "xno"; then
+    AC_DEFINE([SSL_SUPPORT], [0], [OpenSSL not found; no SSL support])
+    AC_MSG_NOTICE([SSL_SUPPORT=0])
+fi
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

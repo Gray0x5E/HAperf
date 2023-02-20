@@ -23,10 +23,14 @@
 #include <thread>
 #include <memory>
 #include <string>
+#include "config.h"
 #include "settings.h"
 #include "functions.h"
 #include "cli_arguments.h"
 #include "server.h"
+#if SSL_SUPPORT == 1
+#include "server_ssl.h"
+#endif /* SSL_SUPPORT */
 
 /**
  * @var bool verbose Whether verbose mode is enabled or not. Defaults to false.
@@ -54,6 +58,7 @@ int main(int argc, char* argv[])
 	}
 
 	// Check if record options are valid
+	#if SSL_SUPPORT == 1
 	if (cmds.record)
 	{
 		if (opts.cert_file.empty() || opts.cert_key.empty())
@@ -62,6 +67,7 @@ int main(int argc, char* argv[])
 			exit(1);
 		}
 	}
+	#endif /* SSL_SUPPORT */
 
 	// If we don't have a main activity chosen, then there's not much to do
 	// This check if just until we support other commands
@@ -86,16 +92,21 @@ int main(int argc, char* argv[])
 			http_server->run();
 		});
 
+		#if SSL_SUPPORT == 1
 		// Start HTTPS server on port 443 in its own thread
-		debug("Starting HTTPS server on port %s", port_to_use.c_str());
+		debug("Starting HTTPS server on port %s", "443");
 		std::thread https_thread([=]() {
-			std::unique_ptr<HTTP::Server> https_server(new HTTP::Server(address_to_use.c_str(), "443", cert_to_use.c_str(), key_to_use.c_str()));
+			std::unique_ptr<HTTP::ServerSSL> https_server(new HTTP::ServerSSL(address_to_use.c_str(), "443", cert_to_use.c_str(), key_to_use.c_str()));
 			https_server->run();
 		});
 
 		// Wait for both threads to finish
 		http_thread.join();
 		https_thread.join();
+		#else
+		// Wait for HTTP server
+		http_thread.join();
+		#endif /* SSL_SUPPORT */
 	}
 	catch (const std::exception& e)
 	{

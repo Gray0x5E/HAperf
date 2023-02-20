@@ -21,4 +21,5 @@ rm -f config.log
 rm -rf src/http/http_server/.deps/
 rm -rf src/http/http_server/.dirstamp
 rm -f stamp-h1
+rm -rf config.h.in~
 find . -name .DS_Store -type f -delete
