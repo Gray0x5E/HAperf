@@ -14,6 +14,10 @@ build/*
 *.out
 *.app
 
+# Sublime Text file
+*.sublime-project
+*.sublime-workspace
+
 # Visual Studio files
 *.sln
 *.vcxproj

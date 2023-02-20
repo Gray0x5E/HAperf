@@ -106,7 +106,7 @@ void print_usage(const char* program_name)
 
 	<< "\033[1mDescription:\033[0m\n"
 	<< "\n"
-	<< "  This program records or replays HTTP data.\n"
+	<< "  This program records and replays HTTP data.\n"
 	<< "\n"
 	<< "  To record data, use the \"record\" command with the required certificate file and certificate key options.\n"
 	<< "  You may also provide an optional IP address and port number to listen on.\n"
